@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINAL_LOGIN // CryptoMutant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-layout">
+
+    <div class="login-container">
+        <h2 class="blink" id="status-message">> SYSTEM_AUTH_REQUIRED</h2>
+        
+        <form id="login-form" class="terminal-form" onsubmit="handleAuth(event)">
+            <div class="form-group">
+                <label for="operator-select">> SELECT_OPERATOR:</label>
+                <select id="operator-select" name="operator" required>
+                    <option value="" disabled selected>-- AWAITING_SELECTION --</option>
+                    <option value="OP_Leovergas">OP_Leovergas</option>
+                    <option value="OP_FDP">OP_FDP</option>
+                    <option value="OP_Joto">OP_Joto</option>
+                    <option value="OP_Danal Semens">OP_Danal Semens</option>
+                    <option value="OP_El Guishe">OP_El Guishe</option>
+                    <option value="OP_Full Smurf">OP_Full Smurf</option>
+                    <option value="OP_Carlos">OP_Carlos</option>
+                    <option value="OP_Amego de Fabio">OP_Amego de Fabio</option>
+                    <option value="OP_Rock Cock">OP_Rock Cock</option>
+                    <option value="OP_Franco">OP_Franco</option>
+                    <option value="OP_Paburo">OP_Paburo</option>
+                    <option value="OP_Kike">OP_Kike</option>
+                    <option value="OP_NegroWhatsapp">OP_NegroWhatsapp</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="password">> ENTER_CIPHER (PASSWORD):</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="action-btn">[ AUTHENTICATE ]</button>
+            <a href="index.html" class="text-btn" style="display:block; text-align:center; margin-top:10px;">> RETURN_TO_GLOBAL</a>
+        </form>
+
+        <div id="action-window" class="terminal-form hidden">
+            <p style="margin-bottom: 20px;">> ACCESS_GRANTED. PLEASE_SELECT_DIRECTIVE:</p>
+            <button type="button" class="action-btn" onclick="goToDashboard()">[ ACCESS_PORTFOLIO ]</button>
+            <button type="button" class="action-btn" style="background-color: #333; color: #FFB000;" onclick="showPasswordReset()">[ CHANGE_CIPHER ]</button>
+        </div>
+
+        <form id="reset-form" class="terminal-form hidden" onsubmit="handleReset(event)">
+            <p class="warning-text">! OLD_CIPHER_REQUIRED_FOR_UPDATE</p>
+            <div class="form-group">
+                <label>> CURRENT_CIPHER:</label>
+                <input type="password" required>
+            </div>
+            <div class="form-group">
+                <label>> NEW_CIPHER:</label>
+                <input type="password" required>
+            </div>
+            <button type="submit" class="action-btn">[ UPDATE_CIPHER ]</button>
+            <button type="button" class="text-btn" onclick="backToActionWindow()">> CANCEL_UPDATE</button>
+        </form>
+    </div>
+
+    <script>
+        function handleAuth(event) {
+            event.preventDefault(); // Stops the page from refreshing
+            
+            const passwordInput = document.getElementById('password').value;
+            
+            // Temporary hardcoded logic: Allow entry if password is '123'
+            if (passwordInput === '123') {
+                // Hide Login, Show Actions
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('action-window').classList.remove('hidden');
+                
+                // Update the blinking status header
+                const statusMessage = document.getElementById('status-message');
+                statusMessage.innerText = "> AUTH_SUCCESS // AWAITING_DIRECTIVE";
+                statusMessage.style.color = "#00FF00"; // Change to green
+            } else {
+                alert("ACCESS_DENIED: INVALID_CIPHER");
+            }
+        }
+
+        function showPasswordReset() {
+            document.getElementById('action-window').classList.add('hidden');
+            document.getElementById('reset-form').classList.remove('hidden');
+            
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.innerText = "> CIPHER_OVERRIDE_PROTOCOL";
+            statusMessage.style.color = "#FFB000"; // Revert to amber
+        }
+
+        function backToActionWindow() {
+            document.getElementById('reset-form').classList.add('hidden');
+            document.getElementById('action-window').classList.remove('hidden');
+            
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.innerText = "> AUTH_SUCCESS // AWAITING_DIRECTIVE";
+            statusMessage.style.color = "#00FF00";
+        }
+
+        function handleReset(event) {
+            event.preventDefault();
+            alert("CIPHER_UPDATED (Simulation)");
+            backToActionWindow();
+        }
+
+        function goToDashboard() {
+            // For now, this just redirects to the static dashboard file you will create next.
+            // When we hook up Flask, this will point to '/dashboard'
+            window.location.href = 'dashboard.html'; 
+        }
+    </script>
+</body>
+</html>

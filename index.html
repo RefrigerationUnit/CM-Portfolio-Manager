@@ -10,8 +10,8 @@
 
     <nav class="top-bar">
         <button class="nav-btn" onclick="toggleCredits()">[ CREDITS ]</button>
-        <a href="/" class="logo">CryptoMutant Portfolio Manager</a>
-        <button class="nav-btn burger-menu">☰</button>
+        <a href="index.html" class="logo">CryptoMutant Portfolio Manager</a>
+        <button class="nav-btn burger-menu" onclick="toggleNav()">☰</button>
     </nav>
 
     <aside id="credits-sidebar" class="sidebar">
@@ -24,19 +24,33 @@
             <br>
             <p>> ACTIVE_NODES (13):</p>
             <ul class="member-list">
-                <li>OP_ZURICH</li>
-                <li>OP_PARIS</li>
-                <li>OP_LONDON</li>
-                <li>OP_SPAIN</li>
-                <li>OP_NODE_05</li>
-                <li>OP_NODE_06</li>
-                <li>OP_NODE_07</li>
-                <li>OP_NODE_08</li>
-                <li>OP_NODE_09</li>
-                <li>OP_NODE_10</li>
-                <li>OP_NODE_11</li>
-                <li>OP_NODE_12</li>
-                <li>OP_NODE_13</li>
+                <li>OP_Leovergas</li>
+                <li>OP_FDP</li>
+                <li>OP_Joto</li>
+                <li>OP_Danal Semens</li>
+                <li>OP_El Guishe</li>
+                <li>OP_Full Smurf</li>
+                <li>OP_Carlos</li>
+                <li>OP_Amego de Fabio</li>
+                <li>OP_Rock Cock</li>
+                <li>OP_Franco</li>
+                <li>OP_Paburo</li>
+                <li>OP_Kike</li>
+                <li>OP_NegroWhatsapp</li>
+            </ul>
+        </div>
+    </aside>
+
+    <aside id="nav-sidebar" class="sidebar right-sidebar">
+        <div class="sidebar-header">
+            <h2>SYSTEM_NAV</h2>
+            <button class="close-btn" onclick="toggleNav()">[ X ]</button>
+        </div>
+        <div class="sidebar-content">
+            <ul class="nav-list">
+                <li><a href="index.html">> GLOBAL_OVERVIEW</a></li>
+                <li><a href="login.html">> OPERATOR_LOGIN</a></li>
+                <li><a href="rankings.html">> PORTFOLIO_RANKINGS</a></li>
             </ul>
         </div>
     </aside>
@@ -79,10 +93,18 @@
     </main>
 
     <script>
+        // Credits Sidebar Toggle
         function toggleCredits() {
             const sidebar = document.getElementById('credits-sidebar');
             sidebar.classList.toggle('open');
         }
+
+        // Navigation Sidebar Toggle
+        function toggleNav() {
+            const sidebar = document.getElementById('nav-sidebar');
+            sidebar.classList.toggle('open');
+        }
     </script>
+    
 </body>
 </html>

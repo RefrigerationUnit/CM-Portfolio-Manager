@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPERATOR_DASHBOARD // CryptoMutant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="dashboard-header">
+        <div class="stat-block">
+            <span class="label">> OPERATOR:</span>
+            <span class="value">OP_LONDON</span>
+        </div>
+        <div class="stat-block">
+            <span class="label">> LIQUIDITY (CASH):</span>
+            <span class="value">$24,500.00</span>
+        </div>
+        <div class="stat-block">
+            <span class="label">> EXPOSURE (POSITIONS):</span>
+            <span class="value">$75,500.00</span>
+        </div>
+        <div class="stat-block">
+            <span class="label">> TOTAL_NAV:</span>
+            <span class="value highlight">$100,000.00</span>
+        </div>
+        <a href="index.html" class="nav-btn">[ RETURN_TO_GLOBAL ]</a>
+    </header>
+
+    <main class="dashboard-grid">
+        
+        <section class="graph-panel border-panel">
+            <div class="panel-header">
+                <h3>> PERFORMANCE_TRAJECTORY</h3>
+                <div class="time-toggles">
+                    <button class="time-btn">[ 1W ]</button>
+                    <button class="time-btn active">[ 1M ]</button>
+                    <button class="time-btn">[ YTD ]</button>
+                    <button class="time-btn">[ 1Y ]</button>
+                    <button class="time-btn">[ ALL ]</button>
+                </div>
+            </div>
+            <div class="graph-placeholder blink">
+                CHART_ENGINE_AWAITING_INITIALIZATION...
+            </div>
+        </section>
+
+        <section class="positions-panel border-panel">
+            <h3>> ACTIVE_DEPLOYMENTS</h3>
+            <table class="terminal-table">
+                <thead>
+                    <tr>
+                        <th>TICKER</th>
+                        <th>QTY</th>
+                        <th>AVG_COST</th>
+                        <th>CURRENT</th>
+                        <th>UNREALIZED_PNL</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AAPL</td>
+                        <td>50</td>
+                        <td>$170.00</td>
+                        <td>$175.50</td>
+                        <td class="profit">+$275.00</td>
+                        <td>
+                            <button class="trade-btn buy">[ BUY ]</button>
+                            <button class="trade-btn sell">[ SELL ]</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>TSLA</td>
+                        <td>-20 (SHORT)</td>
+                        <td>$200.00</td>
+                        <td>$210.00</td>
+                        <td class="loss">-$200.00</td>
+                        <td>
+                            <button class="trade-btn buy">[ COVER ]</button>
+                            <button class="trade-btn sell">[ SHORT ]</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="order-panel border-panel">
+            <h3>> NEW_DEPLOYMENT_TERMINAL</h3>
+            <form class="order-form">
+                <input type="text" placeholder="ENTER_TICKER (e.g. MSFT)" class="terminal-input" required>
+                <input type="number" placeholder="QTY" class="terminal-input" required>
+                <div class="order-actions">
+                    <button type="submit" class="action-btn buy">[ EXECUTE_LONG ]</button>
+                    <button type="submit" class="action-btn sell">[ EXECUTE_SHORT ]</button>
+                </div>
+            </form>
+        </section>
+
+    </main>
+</body>
+</html>
