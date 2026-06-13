@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoMutant Portfolio Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav class="top-bar">
+        <button class="nav-btn" onclick="toggleCredits()">[ CREDITS ]</button>
+        <a href="/" class="logo">CryptoMutant Portfolio Manager</a>
+        <button class="nav-btn burger-menu">☰</button>
+    </nav>
+
+    <aside id="credits-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>SYSTEM_CREDITS</h2>
+            <button class="close-btn" onclick="toggleCredits()">[ X ]</button>
+        </div>
+        <div class="sidebar-content">
+            <p>> SYSTEM_ARCHITECT: Founder</p>
+            <br>
+            <p>> ACTIVE_NODES (13):</p>
+            <ul class="member-list">
+                <li>OP_ZURICH</li>
+                <li>OP_PARIS</li>
+                <li>OP_LONDON</li>
+                <li>OP_SPAIN</li>
+                <li>OP_NODE_05</li>
+                <li>OP_NODE_06</li>
+                <li>OP_NODE_07</li>
+                <li>OP_NODE_08</li>
+                <li>OP_NODE_09</li>
+                <li>OP_NODE_10</li>
+                <li>OP_NODE_11</li>
+                <li>OP_NODE_12</li>
+                <li>OP_NODE_13</li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="dashboard">
+        
+        <section class="performance-panel">
+            <div class="module">
+                <h3>> BEST_PERFORMER_30D</h3>
+                <p class="blink">AWAITING_DATA...</p>
+            </div>
+            <div class="module">
+                <h3>> WORST_PERFORMER_30D</h3>
+                <p class="blink">AWAITING_DATA...</p>
+            </div>
+        </section>
+
+        <section class="leaderboard-panel">
+            <h3>> GLOBAL_LEADERBOARD</h3>
+            <table class="terminal-table">
+                <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>OPERATOR</th>
+                        <th>TOTAL_VALUE</th>
+                        <th>DAY_CHANGE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                    </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <script>
+        function toggleCredits() {
+            const sidebar = document.getElementById('credits-sidebar');
+            sidebar.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
