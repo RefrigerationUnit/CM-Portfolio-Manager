@@ -63,23 +63,33 @@
     </div>
 
     <script>
-        function handleAuth(event) {
-            event.preventDefault(); // Stops the page from refreshing
+        // 1. Send Login Data to Python
+        async function handleAuth(event) {
+            event.preventDefault(); 
             
+            const operator = document.getElementById('operator-select').value;
             const passwordInput = document.getElementById('password').value;
             
-            // Temporary hardcoded logic: Allow entry if password is '123'
-            if (passwordInput === '123') {
-                // Hide Login, Show Actions
+            // Send the data to the Flask /login endpoint
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: operator, password: passwordInput })
+            });
+            
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                // If Python says yes, swap the windows
                 document.getElementById('login-form').classList.add('hidden');
                 document.getElementById('action-window').classList.remove('hidden');
                 
-                // Update the blinking status header
                 const statusMessage = document.getElementById('status-message');
                 statusMessage.innerText = "> AUTH_SUCCESS // AWAITING_DIRECTIVE";
-                statusMessage.style.color = "#00FF00"; // Change to green
+                statusMessage.style.color = "#00FF00"; 
             } else {
-                alert("ACCESS_DENIED: INVALID_CIPHER");
+                // If Python says no, alert the error (INVALID_CIPHER)
+                alert("ACCESS_DENIED: " + data.message);
             }
         }
 
@@ -89,7 +99,7 @@
             
             const statusMessage = document.getElementById('status-message');
             statusMessage.innerText = "> CIPHER_OVERRIDE_PROTOCOL";
-            statusMessage.style.color = "#FFB000"; // Revert to amber
+            statusMessage.style.color = "#FFB000"; 
         }
 
         function backToActionWindow() {
@@ -101,16 +111,38 @@
             statusMessage.style.color = "#00FF00";
         }
 
-        function handleReset(event) {
+        // 2. Send Password Change Data to Python
+        async function handleReset(event) {
             event.preventDefault();
-            alert("CIPHER_UPDATED (Simulation)");
-            backToActionWindow();
+            
+            const operator = document.getElementById('operator-select').value;
+            const currentPassword = document.getElementById('reset-form').elements[0].value;
+            const newPassword = document.getElementById('reset-form').elements[1].value;
+
+            const response = await fetch('/change_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    username: operator, 
+                    old_password: currentPassword, 
+                    new_password: newPassword 
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                alert("SYSTEM_MSG: " + data.message);
+                backToActionWindow();
+                document.getElementById('reset-form').reset(); // Clears the form
+            } else {
+                alert("ERROR: " + data.message);
+            }
         }
 
         function goToDashboard() {
-            // For now, this just redirects to the static dashboard file you will create next.
-            // When we hook up Flask, this will point to '/dashboard'
-            window.location.href = 'dashboard.html'; 
+            // Tells the browser to ask Flask for the dashboard route
+            window.location.href = '/dashboard'; 
         }
     </script>
 </body>
