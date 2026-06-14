@@ -76,18 +76,18 @@ if __name__ == '__main__':
         
         if Operator.query.first() is None:
             initial_operator_ciphers = {
-                "OP_Leovergas": "Temp1", 
-                "OP_FDP": "Temp2",       
+                "OP_Leovergas": "RaquelLerma420", 
+                "OP_FDP": "LeComoElRaboABezos",       
                 "OP_Joto": "Temp3",      
-                "OP_Danal Semens": "3oin3",
-                "OP_El Guishe": "Yes44",
-                "OP_Full Smurf": "sisi34",
-                "OP_Carlos": "Coooom34",
-                "OP_Amego de Fabio": "Andress33",
-                "OP_Rock Cock": "Enromer323",
-                "OP_Franco": "Him1223",
-                "OP_Paburo": "Abuelatiesagorda69",
-                "OP_Kike": "Pollagorda69",
+                "OP_Danal Semens": "RealEstateMaxxing69",
+                "OP_El Guishe": "Pollas69420",
+                "OP_Full Smurf": "Drogaaaa",
+                "OP_Carlos": "GuillemGuillem",
+                "OP_Amego de Fabio": "AmigoDeFabio69",
+                "OP_Rock Cock": "Barcelona",
+                "OP_Franco": "ElMolinoDelPecado69",
+                "OP_Paburo": "VanessaLaQueNoDejaChotaConCabesa69",
+                "OP_Kike": "KikerCasillas69",
                 "OP_NegroWhatsapp": "NegroGordo69"
             }
             

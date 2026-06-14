@@ -45,6 +45,8 @@ a:hover {
     font-family: inherit;
     font-size: 1rem;
     cursor: pointer;
+
+    white-space: nowrap;
 }
 .nav-btn:hover {
     color: #FFFFFF;
