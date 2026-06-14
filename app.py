@@ -62,14 +62,53 @@ def dashboard():
     
     operator = Operator.query.filter_by(username=session['username']).first()
     active_positions = Position.query.filter_by(operator_id=operator.id).all()
-    # NEW: Fetch queued orders for this user
-    pending_orders = QueuedOrder.query.filter_by(operator_id=operator.id).all()
+    queued_orders = QueuedOrder.query.filter_by(operator_id=operator.id).all()
     
+    # --- LIVE MARKET VALUATION ENGINE ---
+    live_positions = []
+    total_exposure = 0.0
+    
+    for pos in active_positions:
+        try:
+            # Fetch current extended-market price
+            stock = yf.Ticker(pos.ticker)
+            current_price = stock.history(period="1d", prepost=True)['Close'].iloc[-1]
+            
+            # Calculate metrics
+            current_value = current_price * pos.quantity
+            total_exposure += current_value
+            unrealized_pnl = current_value - (pos.average_cost * pos.quantity)
+            
+            # Package the data for HTML
+            live_positions.append({
+                "ticker": pos.ticker,
+                "quantity": pos.quantity,
+                "average_cost": pos.average_cost,
+                "current_price": current_price,
+                "unrealized_pnl": unrealized_pnl
+            })
+        except Exception as e:
+            # Fallback if API fails: use average cost as current price
+            current_value = pos.average_cost * pos.quantity
+            total_exposure += current_value
+            live_positions.append({
+                "ticker": pos.ticker,
+                "quantity": pos.quantity,
+                "average_cost": pos.average_cost,
+                "current_price": pos.average_cost,
+                "unrealized_pnl": 0.0
+            })
+
+    total_nav = operator.liquid_cash + total_exposure
+
+    # FINALLY: Send everything to the HTML interface
     return render_template('dashboard.html', 
                            username=operator.username, 
                            cash=operator.liquid_cash,
-                           positions=active_positions,
-                           queued_orders=pending_orders)
+                           exposure=total_exposure,
+                           nav=total_nav,
+                           positions=live_positions,
+                           queued_orders=queued_orders)
 
 
 # 3-4 Clock function to determine if market is open (for UI purposes)
@@ -81,7 +120,7 @@ def is_market_open():
     if ny_time.weekday() >= 5:
         return False
         
-    # Check if the current time is between 4:00 AM and 8:00 PM EST
+    # EXTENDED MARKET HOURS: 4:00 AM to 8:00 PM EST
     market_open = time(4, 0, 0)
     market_close = time(20, 0, 0)
     
@@ -140,7 +179,8 @@ def execute_trade():
     # --- STANDARD LIVE EXECUTION ---
     try:
         stock = yf.Ticker(ticker)
-        current_price = stock.history(period="1d")['Close'].iloc[-1]
+        # NEW: prepost=True allows the engine to pull extended-hours pricing
+        current_price = stock.history(period="1d", prepost=True)['Close'].iloc[-1]
     except Exception as e:
         return jsonify({"status": "error", "message": "INVALID_TICKER"}), 400
 
