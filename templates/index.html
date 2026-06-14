@@ -3,15 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoMutant Portfolio Manager</title>
+    <title>CM Manager</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
-    <nav class="top-bar">
-        <button class="nav-btn" onclick="toggleCredits()">[ CREDITS ]</button>
-        <a href="index.html" class="logo">CryptoMutant Portfolio Manager</a>
-        <button class="nav-btn burger-menu" onclick="toggleNav()">☰</button>
+    <nav class="top-bar" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button class="nav-btn" onclick="toggleCredits()">[ CREDITS ]</button>
+            <a href="/" class="logo">CM Manager</a>
+        </div>
+        
+        <div class="user-status" style="display: flex; align-items: center; gap: 15px;">
+            {% if 'username' in session %}
+                <span style="color: #00FF00;">> NODE_ACTIVE: {{ session['username'] }}</span>
+                <a href="/logout" class="nav-btn" style="color: #FF4444;">[ DISCONNECT ]</a>
+            {% else %}
+                <a href="/login_page" class="nav-btn" style="color: #FFB000;">[ AUTHENTICATE ]</a>
+            {% endif %}
+            
+            <button class="nav-btn burger-menu" onclick="toggleNav()">☰</button>
+        </div>
     </nav>
 
     <aside id="credits-sidebar" class="sidebar">
@@ -20,7 +32,7 @@
             <button class="close-btn" onclick="toggleCredits()">[ X ]</button>
         </div>
         <div class="sidebar-content">
-            <p>> SYSTEM_ARCHITECT: Founder</p>
+            <p>> SYSTEM_ARCHITECT: Francisco Franco</p>
             <br>
             <p>> ACTIVE_NODES (13):</p>
             <ul class="member-list">

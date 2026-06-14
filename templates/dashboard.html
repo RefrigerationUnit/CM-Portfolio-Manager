@@ -4,28 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OPERATOR_DASHBOARD // CryptoMutant</title>
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+
+    <nav class="top-bar" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button class="nav-btn" onclick="toggleCredits()">[ CREDITS ]</button>
+            <a href="/" class="logo">CM Manager</a>
+        </div>
+        
+        <div class="user-status" style="display: flex; align-items: center; gap: 15px;">
+            {% if 'username' in session %}
+                <span style="color: #00FF00;">> NODE_ACTIVE: {{ session['username'] }}</span>
+                <a href="/logout" class="nav-btn" style="color: #FF4444;">[ DISCONNECT ]</a>
+            {% else %}
+                <a href="/login_page" class="nav-btn" style="color: #FFB000;">[ AUTHENTICATE ]</a>
+            {% endif %}
+            
+            <button class="nav-btn burger-menu" onclick="toggleNav()">☰</button>
+        </div>
+    </nav>
+
+    <aside id="nav-sidebar" class="sidebar right-sidebar">
+        <div class="sidebar-header">
+            <h2>SYSTEM_NAV</h2>
+            <button class="close-btn" onclick="toggleNav()">[ X ]</button>
+        </div>
+        <div class="sidebar-content">
+            <ul class="nav-list">
+                <li><a href="/">> GLOBAL_OVERVIEW</a></li>
+                <li><a href="/login_page">> OPERATOR_LOGIN</a></li>
+                <li><a href="/dashboard">> OPERATOR_DASHBOARD</a></li>
+            </ul>
+        </div>
+    </aside>
 
     <header class="dashboard-header">
         <div class="stat-block">
             <span class="label">> OPERATOR:</span>
-            <span class="value">OP_LONDON</span>
+            <span class="value" style="color: #00FF00;">{{ username }}</span>
         </div>
         <div class="stat-block">
             <span class="label">> LIQUIDITY (CASH):</span>
-            <span class="value">$24,500.00</span>
+            <span class="value">${{ "{:,.2f}".format(cash) }}</span>
         </div>
         <div class="stat-block">
             <span class="label">> EXPOSURE (POSITIONS):</span>
-            <span class="value">$75,500.00</span>
+            <span class="value">$0.00</span>
         </div>
         <div class="stat-block">
             <span class="label">> TOTAL_NAV:</span>
             <span class="value highlight">$100,000.00</span>
         </div>
-        <a href="/" class="nav-btn">[ RETURN_TO_GLOBAL ]</a>
+        <a href="/" class="nav-btn" style="white-space: nowrap;">[ RETURN_TO_GLOBAL ]</a>
     </header>
 
     <main class="dashboard-grid">
@@ -60,44 +92,177 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for pos in positions %}
                     <tr>
-                        <td>AAPL</td>
-                        <td>50</td>
-                        <td>$170.00</td>
-                        <td>$175.50</td>
-                        <td class="profit">+$275.00</td>
-                        <td>
-                            <button class="trade-btn buy">[ BUY ]</button>
-                            <button class="trade-btn sell">[ SELL ]</button>
+                        <td>{{ pos.ticker }}</td>
+                        <td>{{ pos.quantity }}</td>
+                        <td>${{ "{:,.2f}".format(pos.average_cost) }}</td>
+                        <td style="color: #00ffff;">${{ "{:,.2f}".format(pos.current_price) }}</td>
+                        
+                        <td class="{% if pos.unrealized_pnl >= 0 %}text-green{% else %}text-red{% endif %}">
+                            {% if pos.unrealized_pnl >= 0 %}+{% endif %}${{ "{:,.2f}".format(pos.unrealized_pnl) }}
+                        </td>
+                        
+                        <td style="display: flex; gap: 10px;">
+                            <button class="trade-btn" style="color: #00ffff; border-color: #00ffff;" onclick="document.getElementById('ticker-input').value='{{ pos.ticker }}'; document.getElementById('qty-input').focus();">[ SELECT ]</button>
+                            <button class="trade-btn" style="color: #FF4444; border-color: #FF4444;" onclick="closePosition('{{ pos.ticker }}', {{ pos.quantity }})">[ CLOSE_POSITION ]</button>
                         </td>
                     </tr>
+                    {% else %}
                     <tr>
-                        <td>TSLA</td>
-                        <td>-20 (SHORT)</td>
-                        <td>$200.00</td>
-                        <td>$210.00</td>
-                        <td class="loss">-$200.00</td>
+                        <td colspan="6" style="text-align: center; color: #666; padding: 20px;">[ NO_ACTIVE_POSITIONS_DETECTED ]</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="queued-panel border-panel" style="margin-bottom: 20px;">
+            <h3>> PENDING_DEPLOYMENTS (QUEUED)</h3>
+            <table class="terminal-table">
+                <thead>
+                    <tr>
+                        <th>TICKER</th>
+                        <th>ACTION</th>
+                        <th>QTY</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in queued_orders %}
+                    <tr>
+                        <td>{{ order.ticker }}</td>
+                        <td style="color: {% if order.action == 'BUY' %}#00FF00{% else %}#FF4444{% endif %};">[{{ order.action }}]</td>
+                        <td>{{ order.quantity }}</td>
+                        <td class="blink" style="color: #FFB000;">AWAITING_MARKET_OPEN</td>
                         <td>
-                            <button class="trade-btn buy">[ COVER ]</button>
-                            <button class="trade-btn sell">[ SHORT ]</button>
+                            <button class="trade-btn sell" onclick="cancelQueue({{ order.id }})">[ CANCEL ]</button>
                         </td>
                     </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #666; padding: 20px;">[ NO_PENDING_ORDERS ]</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </section>
 
         <section class="order-panel border-panel">
             <h3>> NEW_DEPLOYMENT_TERMINAL</h3>
-            <form class="order-form">
-                <input type="text" placeholder="ENTER_TICKER (e.g. MSFT)" class="terminal-input" required>
-                <input type="number" placeholder="QTY" class="terminal-input" required>
-                <div class="order-actions">
-                    <button type="submit" class="action-btn buy">[ EXECUTE_LONG ]</button>
-                    <button type="submit" class="action-btn sell">[ EXECUTE_SHORT ]</button>
+            <form class="order-form" id="trade-form">
+                <input type="text" id="ticker-input" placeholder="ENTER_TICKER (e.g. MSFT)" class="terminal-input" required>
+                <input type="number" id="qty-input" placeholder="QTY" class="terminal-input" required min="0.01" step="0.01">
+                <div class="order-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" class="action-btn buy" onclick="submitTrade('BUY')">[ EXECUTE_BUY ]</button>
+                    <button type="button" class="action-btn sell" onclick="submitTrade('SELL')">[ EXECUTE_SELL ]</button>
                 </div>
+                <p id="trade-status" class="blink" style="margin-top: 10px; color: #FFB000; display: none;"></p>
             </form>
         </section>
 
     </main>
+
+    <script>
+        // Navigation Sidebar Toggle
+        function toggleNav() {
+            const sidebar = document.getElementById('nav-sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Trading Engine Intercom
+        async function submitTrade(actionType) {
+            const ticker = document.getElementById('ticker-input').value;
+            const qty = document.getElementById('qty-input').value;
+            const statusText = document.getElementById('trade-status');
+
+            if (!ticker || !qty) {
+                statusText.style.display = 'block';
+                statusText.style.color = '#FF4444';
+                statusText.innerText = "ERROR: TICKER AND QTY REQUIRED";
+                return;
+            }
+
+            statusText.style.display = 'block';
+            statusText.style.color = '#FFB000';
+            statusText.innerText = "ROUTING_ORDER_TO_MARKET...";
+
+            try {
+                const response = await fetch('/execute_trade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker: ticker, quantity: qty, action: actionType })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    statusText.style.color = '#00FF00';
+                    statusText.innerText = data.message;
+                    document.getElementById('trade-form').reset();
+                    
+                    // Force a page reload after 2 seconds so the cash updates
+                    setTimeout(() => window.location.reload(), 2000); 
+                } else {
+                    statusText.style.color = '#FF4444';
+                    statusText.innerText = "REJECTED: " + data.message;
+                }
+            } catch (error) {
+                statusText.style.color = '#FF4444';
+                statusText.innerText = "SYSTEM_FAILURE: API_DISCONNECTED";
+            }
+        }
+
+        async function cancelQueue(queueId) {
+            if(!confirm("ABORT_PENDING_ORDER?")) return;
+            
+            const response = await fetch('/cancel_queue', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ queue_id: queueId })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                window.location.reload(); 
+            }
+        }
+
+        // 1-Click Liquidation Engine
+        async function closePosition(ticker, maxQty) {
+            // Safety check to prevent accidental clicks
+            if(!confirm(`WARNING: INITIATE FULL LIQUIDATION OF ${maxQty} SHARES OF ${ticker}?`)) return;
+
+            const statusText = document.getElementById('trade-status');
+            statusText.style.display = 'block';
+            statusText.style.color = '#FFB000';
+            statusText.innerText = "ROUTING_LIQUIDATION_ORDER...";
+
+            try {
+                // Send the exact max quantity as a SELL order to the Python engine
+                const response = await fetch('/execute_trade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker: ticker, quantity: maxQty, action: 'SELL' })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    statusText.style.color = '#00FF00';
+                    statusText.innerText = data.message;
+                    // Refresh the terminal to clear the asset and update cash
+                    setTimeout(() => window.location.reload(), 2000); 
+                } else {
+                    statusText.style.color = '#FF4444';
+                    statusText.innerText = "REJECTED: " + data.message;
+                }
+            } catch (error) {
+                statusText.style.color = '#FF4444';
+                statusText.innerText = "SYSTEM_FAILURE: API_DISCONNECTED";
+            }
+        }
+    </script>
 </body>
 </html>
