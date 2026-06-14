@@ -1,32 +1,39 @@
-# admin_override.py
-from app import app, db, Operator
-from werkzeug.security import generate_password_hash
+from flask import Flask, render_template, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
-def force_cipher_reset(target_operator, original_password):
-    with app.app_context():
-        # 1. Find the locked-out operator
-        operator = Operator.query.filter_by(username=target_operator).first()
-        
-        if operator:
-            # 2. Hash their original default password
-            new_hash = generate_password_hash(original_password)
-            
-            # 3. Overwrite the forgotten password in the database
-            operator.password_hash = new_hash
-            db.session.commit()
-            print(f"SUCCESS: System override complete for {target_operator}.")
-        else:
-            print("ERROR: Operator node not found.")
+# 1. INITIALIZE THE FLASK APP & DATABASE
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///simulator.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# You manually trigger this when a friend is locked out:
-force_cipher_reset("OP_Carlos", "Coooom34")
+db = SQLAlchemy(app)
 
-from flask import Flask, render_template, request, jsonify # Updated imports
+# 2. DATABASE MODELS
+class Operator(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    liquid_cash = db.Column(db.Float, default=100000.0) 
 
-# ... [Your app config and db.Model classes stay here] ...
+class Position(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    operator_id = db.Column(db.Integer, db.ForeignKey('operator.id'), nullable=False)
+    ticker = db.Column(db.String(10), nullable=False)
+    quantity = db.Column(db.Float, nullable=False)
+    average_cost = db.Column(db.Float, nullable=False)
 
-# --- PAGE RENDERING ROUTES ---
+class TradeLedger(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    operator_id = db.Column(db.Integer, db.ForeignKey('operator.id'), nullable=False)
+    ticker = db.Column(db.String(10), nullable=False)
+    action = db.Column(db.String(10), nullable=False) 
+    quantity = db.Column(db.Float, nullable=False)
+    execution_price = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+# 3. PAGE RENDERING ROUTES (HTML)
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -39,4 +46,57 @@ def login_page():
 def dashboard():
     return render_template('dashboard.html')
 
-# ... [Your @app.route('/login', methods=['POST']) goes here] ...
+# 4. API ROUTES (Authentication Logic)
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    operator = Operator.query.filter_by(username=data['username']).first()
+    
+    if operator and check_password_hash(operator.password_hash, data['password']):
+        return jsonify({"status": "success", "message": "ACCESS_GRANTED"})
+    else:
+        return jsonify({"status": "error", "message": "INVALID_CIPHER"}), 401
+
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    data = request.json
+    operator = Operator.query.filter_by(username=data['username']).first()
+    
+    if operator and check_password_hash(operator.password_hash, data['old_password']):
+        operator.password_hash = generate_password_hash(data['new_password'])
+        db.session.commit()
+        return jsonify({"status": "success", "message": "CIPHER_UPDATED"})
+    else:
+        return jsonify({"status": "error", "message": "OLD_CIPHER_INCORRECT"}), 401
+
+# 5. DATABASE INITIALIZATION SCRIPT
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        
+        if Operator.query.first() is None:
+            initial_operator_ciphers = {
+                "OP_Leovergas": "Temp1", 
+                "OP_FDP": "Temp2",       
+                "OP_Joto": "Temp3",      
+                "OP_Danal Semens": "3oin3",
+                "OP_El Guishe": "Yes44",
+                "OP_Full Smurf": "sisi34",
+                "OP_Carlos": "Coooom34",
+                "OP_Amego de Fabio": "Andress33",
+                "OP_Rock Cock": "Enromer323",
+                "OP_Franco": "Him1223",
+                "OP_Paburo": "Abuelatiesagorda69",
+                "OP_Kike": "Pollagorda69",
+                "OP_NegroWhatsapp": "NegroGordo69"
+            }
+            
+            for username, original_pw in initial_operator_ciphers.items():
+                hashed_pw = generate_password_hash(original_pw)
+                new_op = Operator(username=username, password_hash=hashed_pw)
+                db.session.add(new_op)
+                
+            db.session.commit()
+            print("SYSTEM_DB_INITIALIZED: 13 Operators deployed.")
+            
+    app.run(debug=True)
